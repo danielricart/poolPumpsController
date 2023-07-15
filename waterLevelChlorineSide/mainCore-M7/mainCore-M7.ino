@@ -12,11 +12,13 @@ bool waterLevel = false;
 bool chlorineStatus = false;
 bool motorOn = false;
 bool remoteMotorStatus = false;
+bool overrideBehaviour = false; 
 
-void setVariables(bool newWaterLevel, bool newChlorineStatus, bool newMotorOn) {
+void setVariables(bool newWaterLevel, bool newChlorineStatus, bool newMotorOn, bool newOverride) {
   waterLevel = newWaterLevel;
   chlorineStatus = newChlorineStatus;
   motorOn = newMotorOn;
+  overrideBehaviour = newOverride;
 }
 
 bool getRemoteMotorStatus() {
@@ -46,6 +48,8 @@ void loop() {
     Serial.print(motorOn);
     Serial.print("  remoteMotorStatus: ");
     Serial.print(remoteMotorStatus);
+    Serial.print("  overrideBehaviour: ");
+    Serial.print(overrideBehaviour);
 
     Serial.println(" ");
     updateSerialOutput.start(1000);

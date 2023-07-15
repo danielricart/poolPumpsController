@@ -54,6 +54,8 @@ void loop() {
   digitalWrite(LED_OVERRIDE, overrideBehaviour);
 
   //TODO: RPC turnRemoteMotorOn
+  RPC.send("setVariables", waterLevelStatus, false, turnRemoteMotorOn, overrideBehaviour); // chlorineStatus
+
 
 
   #ifdef CORE_CM7
