@@ -98,15 +98,4 @@ void loop() {
   digitalWrite(LED_OVERRIDE, overrideBehaviour);
 
   RPC.send("setVariables", waterLevelStatus, chlorineStatus, turnRemoteMotorOn, overrideBehaviour);
-
-
-
-#ifdef CORE_CM7
-  Serial.print(sensorValueA0);
-  Serial.print(";");
-  Serial.print(voltageA0);
-  Serial.print(";");
-  Serial.print(waterLevelStatus);
-  Serial.println(" ");
-#endif
 }
