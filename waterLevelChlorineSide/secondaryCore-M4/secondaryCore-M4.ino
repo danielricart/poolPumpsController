@@ -14,6 +14,9 @@
 
 #define LED_REMOTEMOTOR LED_D1
 
+#define PIN_CHLORINE RELAY1
+#define LED_CHLORINE LED_D2
+
 EasyButton button(BTN_USER);
 bool overrideBehaviour = false;
 
@@ -22,6 +25,7 @@ bool turnRemoteMotorOn = false;
 
 bool remoteMotorStatus = false; 
 
+bool chlorineStatus = false;
 
 void onPressedForDuration() {
   overrideBehaviour = !overrideBehaviour;
@@ -34,6 +38,12 @@ void setup() {
 
   pinMode(LED_WATERLEVEL, OUTPUT);
   pinMode(PIN_WATERLEVEL, INPUT);
+
+  pinMode(LED_CHLORINE, OUTPUT);
+  digitalWrite(LED_CHLORINE, LOW);
+
+  pinMode(PIN_CHLORINE, OUTPUT);
+  digitalWrite(PIN_CHLORINE, LOW);
 
   RPC.begin();
   // Initialize the button.
@@ -53,16 +63,20 @@ void loop() {
   auto remoteMotorResult = RPC.call("getRemoteMotorStatus").as<int>();
   remoteMotorStatus = (bool)remoteMotorResult;
   // EVALUATE
+
+  //TODO: ADD Delay so it does not immediately react to changes in waterLevelStatus
   turnRemoteMotorOn = waterLevelStatus;
 
-  //TODO: Add chlroine code. (maps to remoteMotorStatus)
+  //TODO: ADD Delay so it does not immediately react to changes in remoteMotorStatus
+  chlorineStatus = remoteMotorStatus;
 
   // WRITE OUTPUTS
   digitalWrite(LED_WATERLEVEL, waterLevelStatus);
   digitalWrite(LED_REMOTEMOTOR, remoteMotorStatus);
+  digitalWrite(LED_CHLORINE, chlorineStatus);
   digitalWrite(LED_OVERRIDE, overrideBehaviour);
 
-  RPC.send("setVariables", waterLevelStatus, false, turnRemoteMotorOn, overrideBehaviour); // chlorineStatus
+  RPC.send("setVariables", waterLevelStatus, chlorineStatus, turnRemoteMotorOn, overrideBehaviour); // chlorineStatus
 
 
 
