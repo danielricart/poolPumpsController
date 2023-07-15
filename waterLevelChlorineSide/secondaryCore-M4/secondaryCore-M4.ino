@@ -7,8 +7,14 @@
 #define BUTTON_LONG_PRESS 2000
 #define LED_OVERRIDE LED_D3
 
+#define PIN_WATERLEVEL A0
+#define LED_WATERLEVEL LED_D0
+
 EasyButton button(BTN_USER);
 bool overrideBehaviour = false;
+
+bool waterLevelStatus = false;
+bool turnRemoteMotorOn = false;
 
 void onPressedForDuration() {
   overrideBehaviour = !overrideBehaviour;
@@ -19,6 +25,9 @@ void setup() {
   pinMode(LED_OVERRIDE, OUTPUT);
   digitalWrite(LED_OVERRIDE, LOW);
 
+  pinMode(LED_WATERLEVEL, OUTPUT);
+  pinMode(PIN_WATERLEVEL, INPUT_PULLDOWN);
+
   // Initialize the button.
   button.begin();
   // Attach callback.
@@ -26,7 +35,18 @@ void setup() {
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+  // READ INPUTS
   button.read();
+  waterLevelStatus = digitalRead(PIN_WATERLEVEL);
+  //TODO: Read RemoteMotorStatus
+
+  // EVALUATE
+  turnRemoteMotorOn = waterLevelStatus;
+
+
+  // WRITE OUTPUTS
+  digitalWrite(LED_WATERLEVEL, waterLevelStatus);
   digitalWrite(LED_OVERRIDE, overrideBehaviour);
+
+  //TODO: RPC turnRemoteMotorOn
 }
