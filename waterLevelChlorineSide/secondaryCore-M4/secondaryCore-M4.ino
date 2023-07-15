@@ -26,7 +26,7 @@ void setup() {
   digitalWrite(LED_OVERRIDE, LOW);
 
   pinMode(LED_WATERLEVEL, OUTPUT);
-  pinMode(PIN_WATERLEVEL, INPUT_PULLDOWN);
+  pinMode(PIN_WATERLEVEL, INPUT);
 
   // Initialize the button.
   button.begin();
@@ -37,7 +37,9 @@ void setup() {
 void loop() {
   // READ INPUTS
   button.read();
-  waterLevelStatus = digitalRead(PIN_WATERLEVEL);
+  int sensorValueA0 = analogRead(PIN_WATERLEVEL);
+  float voltageA0 = sensorValueA0 * (3.0 / 4095.0) / 0.3;
+  waterLevelStatus = voltageA0 > 2.0f;
   //TODO: Read RemoteMotorStatus
 
   // EVALUATE
@@ -49,4 +51,14 @@ void loop() {
   digitalWrite(LED_OVERRIDE, overrideBehaviour);
 
   //TODO: RPC turnRemoteMotorOn
+
+
+  #ifdef CORE_CM7
+  Serial.print(sensorValueA0);
+  Serial.print(";");
+  Serial.print(voltageA0);
+  Serial.print(";");  
+  Serial.print(waterLevelStatus);
+  Serial.println(" ");
+  #endif
 }
