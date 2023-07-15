@@ -21,7 +21,7 @@ void setVariables(bool newWaterLevel, bool newChlorineStatus, bool newMotorOn, b
   overrideBehaviour = newOverride;
 }
 
-bool getRemoteMotorStatus() {
+int getRemoteMotorStatus() {
   return remoteMotorStatus;
 }
 
@@ -32,6 +32,7 @@ void setup() {
   RPC.begin();
   RPC.bind("setVariables", setVariables);
   RPC.bind("getRemoteMotorStatus", getRemoteMotorStatus);
+  delay(200);
 }
 
 void loop() {
