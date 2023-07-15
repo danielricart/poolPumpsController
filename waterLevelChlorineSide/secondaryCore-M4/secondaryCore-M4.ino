@@ -21,9 +21,14 @@ EasyButton button(BTN_USER);
 bool overrideBehaviour = false;
 
 bool waterLevelStatus = false;
+bool newWaterLevelStatus = false;
+unsigned long lastWaterLevelStatusTransition;
+
 bool turnRemoteMotorOn = false;
 
-bool remoteMotorStatus = false; 
+bool remoteMotorStatus = false;
+bool newRemoteMotorStatus = false;
+unsigned long lastRemoteMotorStatusTransition;
 
 bool chlorineStatus = false;
 
@@ -55,20 +60,36 @@ void setup() {
 
 void loop() {
   // READ INPUTS
+  unsigned long now = millis();
   button.read();
   int sensorValueA0 = analogRead(PIN_WATERLEVEL);
   float voltageA0 = sensorValueA0 * (3.0 / 4095.0) / 0.3;
-  waterLevelStatus = voltageA0 < 2.0f;
+
+  newWaterLevelStatus = (voltageA0 < 2.0f) || overrideBehaviour;
 
   auto remoteMotorResult = RPC.call("getRemoteMotorStatus").as<int>();
-  remoteMotorStatus = (bool)remoteMotorResult;
+  newRemoteMotorStatus = (bool)remoteMotorResult;
   // EVALUATE
 
   //TODO: ADD Delay so it does not immediately react to changes in waterLevelStatus
-  turnRemoteMotorOn = waterLevelStatus;
+  if (newWaterLevelStatus != waterLevelStatus) {
+    lastWaterLevelStatusTransition = now;
+  }
+  if ((now - lastWaterLevelStatusTransition) > 1000) {  // THis delay debounces the reading and delays reactions.
+    turnRemoteMotorOn = waterLevelStatus;
+  }
+  waterLevelStatus = newWaterLevelStatus;
+
 
   //TODO: ADD Delay so it does not immediately react to changes in remoteMotorStatus
-  chlorineStatus = remoteMotorStatus;
+  if (newRemoteMotorStatus != remoteMotorStatus) {
+    lastRemoteMotorStatusTransition = now;
+  }
+  if (now - lastRemoteMotorStatusTransition > 1000) {  // THis delay debounces the reading and delays reactions.
+    chlorineStatus = remoteMotorStatus;
+  }
+  remoteMotorStatus = newRemoteMotorStatus;
+
 
   // WRITE OUTPUTS
   digitalWrite(LED_WATERLEVEL, waterLevelStatus);
@@ -76,16 +97,16 @@ void loop() {
   digitalWrite(LED_CHLORINE, chlorineStatus);
   digitalWrite(LED_OVERRIDE, overrideBehaviour);
 
-  RPC.send("setVariables", waterLevelStatus, chlorineStatus, turnRemoteMotorOn, overrideBehaviour); // chlorineStatus
+  RPC.send("setVariables", waterLevelStatus, chlorineStatus, turnRemoteMotorOn, overrideBehaviour);
 
 
 
-  #ifdef CORE_CM7
+#ifdef CORE_CM7
   Serial.print(sensorValueA0);
   Serial.print(";");
   Serial.print(voltageA0);
-  Serial.print(";");  
+  Serial.print(";");
   Serial.print(waterLevelStatus);
   Serial.println(" ");
-  #endif
+#endif
 }
