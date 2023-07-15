@@ -37,8 +37,15 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
+  
+  
+
+  //TODO: Fetch this from remote end.
+  remoteMotorStatus = motorOn;
+  
   digitalWrite(LEDR, HIGH);
   digitalWrite(LEDG, HIGH);
+
 
   if (updateSerialOutput.elapsed()) {
     Serial.print("waterLevel: ");
