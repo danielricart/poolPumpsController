@@ -39,7 +39,7 @@ void loop() {
   button.read();
   int sensorValueA0 = analogRead(PIN_WATERLEVEL);
   float voltageA0 = sensorValueA0 * (3.0 / 4095.0) / 0.3;
-  waterLevelStatus = voltageA0 > 2.0f;
+  waterLevelStatus = voltageA0 < 2.0f;
   //TODO: Read RemoteMotorStatus
 
   // EVALUATE
