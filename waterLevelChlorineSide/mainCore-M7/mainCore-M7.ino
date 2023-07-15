@@ -3,13 +3,33 @@
 #endif
 
 #include <avdweb_VirtualDelay.h>
+#include "RPC.h"
+
+
 VirtualDelay updateSerialOutput;
 
+bool waterLevel = false;
+bool chlorineStatus = false;
+bool motorOn = false;
+bool remoteMotorStatus = false;
+
+void setVariables(bool newWaterLevel, bool newChlorineStatus, bool newMotorOn) {
+  waterLevel = newWaterLevel;
+  chlorineStatus = newChlorineStatus;
+  motorOn = newMotorOn;
+}
+
+bool getRemoteMotorStatus() {
+  return remoteMotorStatus;
+}
 
 void setup() {
   // put your setup code here, to run once:
   bootM4();
   updateSerialOutput.start(1000);
+  RPC.begin();
+  RPC.bind("setVariables", setVariables);
+  RPC.bind("getRemoteMotorStatus", getRemoteMotorStatus);
 }
 
 void loop() {
@@ -18,7 +38,16 @@ void loop() {
   digitalWrite(LEDG, HIGH);
 
   if (updateSerialOutput.elapsed()) {
-    Serial.println("Hello from Main core...");
+    Serial.print("waterLevel: ");
+    Serial.print(waterLevel);
+    Serial.print("  chlorineStatus: ");
+    Serial.print(chlorineStatus);
+    Serial.print("  motorOn: ");
+    Serial.print(motorOn);
+    Serial.print("  remoteMotorStatus: ");
+    Serial.print(remoteMotorStatus);
+
+    Serial.println(" ");
     updateSerialOutput.start(1000);
   }
 }

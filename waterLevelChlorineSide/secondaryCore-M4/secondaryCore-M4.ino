@@ -3,6 +3,8 @@
 #endif
 
 #include <EasyButton.h>
+#include "RPC.h"
+
 
 #define BUTTON_LONG_PRESS 2000
 #define LED_OVERRIDE LED_D3
@@ -28,6 +30,7 @@ void setup() {
   pinMode(LED_WATERLEVEL, OUTPUT);
   pinMode(PIN_WATERLEVEL, INPUT);
 
+  RPC.begin();
   // Initialize the button.
   button.begin();
   // Attach callback.
