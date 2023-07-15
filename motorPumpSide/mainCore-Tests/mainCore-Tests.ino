@@ -1,5 +1,5 @@
 #ifdef CORE_CM4
-#error "This Code is for CORE_CM7 only"
+//#error "This Code is for CORE_CM7 only"
 #endif
 #include "RPC.h"  // comes with the mbed board installation
 
@@ -35,16 +35,20 @@ void setup() {
   RPC.bind("setChlorineStatus", setChlorineStatus);
   RPC.bind("setTurnMotorOn", setTurnMotorOn);
   RPC.bind("getRemoteMotorStatus", getRemoteMotorStatus);
-
+  #ifdef CORE_CM7
   bootM4();
   Serial.println("Both cores are booted up");
+  #endif
+  
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
   if (millis() - lastUpdate > 1000) {
     Serial.print("Status: ");
-    Serial.print("waterLevel: ");
+    Serial.print(" waterLevel: ");
     Serial.print(waterLevel);
+    Serial.println(" ");
   }
+  digitalWrite(LEDG, waterLevel);
 }

@@ -22,7 +22,7 @@ USER: NC
 
 
 */
-#ifdef CORE_CM7 
+#ifdef CORE_CM7
 #error "This Code is for CORE_CM4 only"
 #endif
 #include <avdweb_VirtualDelay.h>
@@ -30,7 +30,7 @@ USER: NC
 #include "RPC.h"  // comes with the mbed board installation
 
 
-#define LEVEL_SIGNAL PIN_A1
+#define LEVEL_SIGNAL A0
 #define LEVEL_SIGNAL_LED LED_D0
 #define MOTOR_LED LED_D1
 #define CHLORINE_LED LED_D2
@@ -50,10 +50,10 @@ USER: NC
 #define BUTTON_LONG_PRESS 2000
 
 
-int waterLevel = LOW;
-int chlorineStatus = LOW;
-int turnMotorOn = LOW;
-int remoteMotorStatus = LOW;
+bool waterLevel = LOW;
+bool chlorineStatus = LOW;
+bool turnMotorOn = LOW;
+bool remoteMotorStatus = LOW;
 
 VirtualDelay delayMotorOn;
 VirtualDelay delayMotorOff;
@@ -93,9 +93,13 @@ void setup() {
   digitalWrite(MOTOR_LED, LOW);
   digitalWrite(CHLORINE_PIN, LOW);
   digitalWrite(OVERRIDE_LED, LOW);
-
+#ifdef CORE_CM7
+  Serial.println("Booting M4...");
+  bootM4();
+  Serial.println("M4 booted");
+#endif
   RPC.begin();
-  delay(1000);
+
   updateSecondaryCore.start(RPC_UPDATE_DELAY);
 
   // Initialize the button.
@@ -103,7 +107,6 @@ void setup() {
 
   // Attach callback.
   button.onPressedFor(BUTTON_LONG_PRESS, onPressedForDuration);
-
 }
 
 
@@ -111,8 +114,11 @@ void loop() {
   // put your main code here, to run repeatedly:
   unsigned long currentTime = millis();
   //READ
-  int newWaterLevelStatus = digitalRead(LEVEL_SIGNAL);
-  auto newRemoteMotorStatus = RPC.call("getRemoteMotorStatus").as<int>();
+  button.read();  //Btn is read first because it may block the next reading or not.
+
+  bool newWaterLevelStatus = digitalRead(LEVEL_SIGNAL);
+  bool newRemoteMotorStatus = true;
+  //auto newRemoteMotorStatus = RPC.call("getRemoteMotorStatus").as<int>();
 
   if (waterLevel != newWaterLevelStatus) {
     lastWaterLevelTransition = currentTime;
@@ -171,12 +177,14 @@ void loop() {
   digitalWrite(LEVEL_SIGNAL_LED, waterLevel);
   digitalWrite(MOTOR_LED, remoteMotorStatus);
   digitalWrite(CHLORINE_LED, chlorineStatus);
-    digitalWrite(OVERRIDE_LED, overrideBehaviour);
+  digitalWrite(OVERRIDE_LED, overrideBehaviour);
 
+  digitalWrite(LEDG, digitalRead(8));
   if (updateSecondaryCore.elapsed()) {
     RPC.send("setWaterLevelStatus", waterLevel);
     RPC.send("setChlorineStatus", chlorineStatus);
     RPC.send("setTurnMotorOn", turnMotorOn);
+  
     updateSecondaryCore.start(RPC_UPDATE_DELAY);
   }
 }

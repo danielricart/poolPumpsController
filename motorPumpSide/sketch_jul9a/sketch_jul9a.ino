@@ -27,6 +27,8 @@ Automatic (default mode):
 
 #include <avdweb_VirtualDelay.h>
 #include <EasyButton.h>
+#include "RPC.h"  // comes with the mbed board installation
+
 
 #define PUMP_SIGNAL PIN_A1
 #define PUMP_SIGNAL_LED LED_D0
@@ -82,6 +84,7 @@ void setup() {
   pinMode(PUMP_SIGNAL_LED, OUTPUT);
   pinMode(MOTOR_LED, OUTPUT);
   pinMode(MOTOR_PIN, OUTPUT);
+  pinMode(OVERRIDE_LED, OUTPUT);
 
   pinMode(LED_CONN_OK, OUTPUT);
   pinMode(LED_CONN_ERROR, OUTPUT);
@@ -90,8 +93,7 @@ void setup() {
   digitalWrite(PUMP_SIGNAL_LED, digitalRead(PUMP_SIGNAL));
   digitalWrite(MOTOR_LED, LOW);
   digitalWrite(MOTOR_PIN, LOW);
-  digitalWrite(LED_CONN_OK, LOW);
-  digitalWrite(LED_CONN_ERROR, LOW);
+  digitalWrite(OVERRIDE_LED, LOW);
 
 
   // Initialize the button.
@@ -99,6 +101,9 @@ void setup() {
 
   // Attach callback.
   button.onPressedFor(BUTTON_LONG_PRESS, onPressedForDuration);
+
+  bootM4();
+  RPC.begin();
 }
 
 void loop() {
@@ -140,8 +145,9 @@ void loop() {
 
   // UPDATE OUTPUTS
   //TODO: UPDATE connStatus
-  digitalWrite(LED_CONN_ERROR, !connStatus);
-  digitalWrite(LED_CONN_OK, connStatus);
+  //  digitalWrite(LED_CONN_ERROR, !connStatus);
+  //  digitalWrite(LED_CONN_OK, connStatus);
+   RPC.call("chlorineStatus", (int)motorStatus);    //.as<int>();
 
   digitalWrite(PUMP_SIGNAL_LED, pumpStatus);
   digitalWrite(MOTOR_LED, motorStatus);
