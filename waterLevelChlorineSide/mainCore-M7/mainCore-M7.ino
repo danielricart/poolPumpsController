@@ -61,6 +61,9 @@ void setup() {
   if (Ethernet.linkStatus() == LinkOFF) {
     Serial.println("Ethernet cable is not connected.");
   }
+  Serial.println("WaterLevel+Chlorine Controller Started.");
+  mbed::Watchdog::get_instance().start(10000);  
+
 }
 
 void loop() {
@@ -130,4 +133,5 @@ void loop() {
     Serial.println(" ");
     updateSerialOutput.start(1000);
   }
+  mbed::Watchdog::get_instance().kick(); //kick watchdog 
 }
