@@ -11,7 +11,7 @@
 #include <ArduinoRS485.h>
 #include <ArduinoModbus.h>
 
-
+#define WATCHDOG_TIMEOUT 10000 //milliseconds. 10s
 #define LED_CONN_ERROR LEDR
 #define LED_CONN_OK LEDG
 
@@ -36,7 +36,6 @@ bool overrideBehaviour = false;
 
 bool modbusStatus = false;
 bool remoteComms = false;
-
 void setVariables(bool newWaterLevel, bool newChlorineStatus, bool newMotorOn, bool newOverride) {
   waterLevel = newWaterLevel;
   chlorineStatus = newChlorineStatus;
@@ -62,12 +61,13 @@ void setup() {
     Serial.println("Ethernet cable is not connected.");
   }
   Serial.println("WaterLevel+Chlorine Controller Started.");
-  mbed::Watchdog::get_instance().start(10000);  
+  mbed::Watchdog::get_instance().start(WATCHDOG_TIMEOUT);  
 
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
+
   if (!modbusTCPClient.connected()) {
     // client not connected, start the Modbus TCP client
     Serial.println("Attempting to connect to Modbus TCP server");
