@@ -48,21 +48,14 @@ int getTurnMotorOn() {
   return turnMotorOn;
 }
 
-void setMotorStatus(bool newValue) {
-  MotorStatus = newValue;
+void setMotorStatus(int newValue) {
+  MotorStatus = (bool)newValue;
 }
 
 void setup() {
   // put your setup code here, to run once:
   bootM4();
   updateSerialOutput.start(1000);
-
-  pinMode(RELAY1, OUTPUT);
-  pinMode(LED_D0, OUTPUT);
-  pinMode(LED_D1, OUTPUT);
-  pinMode(LED_D2, OUTPUT);
-  pinMode(LED_D3, OUTPUT);
-  pinMode(A0, INPUT);
 
   RPC.begin();
   RPC.bind("getRemoteWaterLevel", getRemoteWaterLevel);
@@ -107,27 +100,18 @@ void loop() {
       remoteComms = true;
       readModbus();
       updateStatus();
-      if (updateSerialOutput.elapsed()) {
-        Serial.print("remoteWaterLevel: ");
-        Serial.print(remoteWaterLevel);
-        Serial.print(" MotorStatus: ");
-        Serial.print(MotorStatus);
-        Serial.print(" remoteChlorineStatus: ");
-        Serial.print(remoteChlorineStatus);
-        Serial.print(" turnMotorOn: ");
-        Serial.print(turnMotorOn);
-        Serial.println(" ");
-        updateSerialOutput.start(1000);
-      }
+      updateSerial();
     }
     //client disconnected
+    Serial.println("MODBUS client disconnected.");
   } else {
     modbusStatus = false;
     remoteComms = false;
+    updateStatus();
+    updateSerial();
   }
-
-  digitalWrite(LEDR, !modbusStatus || !remoteComms);
-  digitalWrite(LEDG, modbusStatus || remoteComms);
+  updateStatus();
+  updateSerial();
 }
 
 void readModbus() {
@@ -138,15 +122,26 @@ void readModbus() {
 }
 
 void updateStatus() {
-  digitalWrite(LED_D0, remoteWaterLevel);
-  MotorStatus = analogRead(A0) < 1100;
-  int sensorValueA0 = analogRead(A0);
-  float voltageA0 = sensorValueA0 * (3.0 / 4095.0) / 0.3;
-  MotorStatus = (voltageA0 < 2.0f) || overrideBehaviour;
 
-  digitalWrite(LED_D1, MotorStatus);
-  digitalWrite(LED_D2, remoteChlorineStatus);
-  digitalWrite(RELAY1, turnMotorOn);
-  digitalWrite(LEDR, !modbusStatus || !remoteComms);
-  digitalWrite(LEDG, modbusStatus || remoteComms);
+
+
+  digitalWrite(LEDR, !modbusStatus);
+  digitalWrite(LEDG, modbusStatus);
+}
+
+void updateSerial() {
+  if (updateSerialOutput.elapsed()) {
+        Serial.print("modbusStatus: ");
+        Serial.print(modbusStatus);
+        Serial.print(" remoteWaterLevel: ");
+        Serial.print(remoteWaterLevel);
+        Serial.print(" MotorStatus: ");
+        Serial.print(MotorStatus);
+        Serial.print(" remoteChlorineStatus: ");
+        Serial.print(remoteChlorineStatus);
+        Serial.print(" turnMotorOn: ");
+        Serial.print(turnMotorOn);
+        Serial.println(" ");
+        updateSerialOutput.start(1000);
+      }
 }
