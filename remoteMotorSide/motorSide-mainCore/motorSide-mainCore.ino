@@ -58,13 +58,13 @@ void setup() {
   pinMode(LED_D3, OUTPUT);
   pinMode(A0, INPUT);
   
-  /*RPC.begin();
+  RPC.begin();
   RPC.bind("getRemoteWaterLevel", getRemoteWaterLevel);
   RPC.bind("getRemoteChlorineStatus", getRemoteChlorineStatus);
   RPC.bind("getTurnMotorOn", getTurnMotorOn);
   RPC.bind("setMotorStatus", setMotorStatus);
   delay(200);
-*/
+
   Ethernet.begin(ip);
   if (Ethernet.linkStatus() == LinkOFF) {
     Serial.println("Ethernet cable is not connected.");
@@ -132,10 +132,10 @@ void readModbus() {
 void updateStatus() {
   digitalWrite(LED_D0, remoteWaterLevel);
   MotorStatus = analogRead(A0) < 1100;
-/*  int sensorValueA0 = analogRead(A0);
+  int sensorValueA0 = analogRead(A0);
   float voltageA0 = sensorValueA0 * (3.0 / 4095.0) / 0.3;
   MotorStatus = (voltageA0 < 2.0f) || overrideBehaviour;
-*/
+
   digitalWrite(LED_D1, MotorStatus);
   digitalWrite(LED_D2, remoteChlorineStatus);
   digitalWrite(RELAY1, turnMotorOn);
