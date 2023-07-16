@@ -108,6 +108,7 @@ void loop() {
       Serial.println(modbusTCPClient.lastError());
       remoteComms = false;
     }
+      mbed::Watchdog::get_instance().kick(); //kick watchdog 
   }
 
 
@@ -133,5 +134,4 @@ void loop() {
     Serial.println(" ");
     updateSerialOutput.start(1000);
   }
-  mbed::Watchdog::get_instance().kick(); //kick watchdog 
 }
