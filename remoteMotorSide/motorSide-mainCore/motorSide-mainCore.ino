@@ -66,7 +66,8 @@ void setup() {
 
   Ethernet.begin(ip);
   if (Ethernet.linkStatus() == LinkOFF) {
-    Serial.println("Ethernet cable is not connected.");
+    //Serial.println("Ethernet cable is not connected.");
+    delay(500);
   }
   ethServer.begin();
 
@@ -93,7 +94,7 @@ void loop() {
   if (client) {
     modbusTCPServer.accept(client);
     modbusStatus = true;
-    while (client.connected()) {
+    while (client.connected() && Ethernet.linkStatus() == LinkON) {
       // poll for Modbus TCP requests, while client connected
       modbusTCPServer.poll();
       modbusStatus = true;
@@ -109,9 +110,12 @@ void loop() {
     remoteComms = false;
     updateStatus();
     updateSerial();
+    // Disable outputs if there's no connection. Safe mode. 
+    turnMotorOn = false;
+    remoteWaterLevel = false;
+    remoteChlorineStatus = false;
+    Serial.println("No MODBUS Client found .");
   }
-  updateStatus();
-  updateSerial();
 }
 
 void readModbus() {
@@ -131,17 +135,17 @@ void updateStatus() {
 
 void updateSerial() {
   if (updateSerialOutput.elapsed()) {
-        Serial.print("modbusStatus: ");
-        Serial.print(modbusStatus);
-        Serial.print(" remoteWaterLevel: ");
-        Serial.print(remoteWaterLevel);
-        Serial.print(" MotorStatus: ");
-        Serial.print(MotorStatus);
-        Serial.print(" remoteChlorineStatus: ");
-        Serial.print(remoteChlorineStatus);
-        Serial.print(" turnMotorOn: ");
-        Serial.print(turnMotorOn);
-        Serial.println(" ");
-        updateSerialOutput.start(1000);
-      }
+    Serial.print("modbusStatus: ");
+    Serial.print(modbusStatus);
+    Serial.print(" remoteWaterLevel: ");
+    Serial.print(remoteWaterLevel);
+    Serial.print(" MotorStatus: ");
+    Serial.print(MotorStatus);
+    Serial.print(" remoteChlorineStatus: ");
+    Serial.print(remoteChlorineStatus);
+    Serial.print(" turnMotorOn: ");
+    Serial.print(turnMotorOn);
+    Serial.println(" ");
+    updateSerialOutput.start(1000);
+  }
 }
