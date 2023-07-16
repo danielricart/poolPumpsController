@@ -84,7 +84,7 @@ void loop() {
     remoteComms = true; //assuming everything will be ok. 
 
     // this is an discrete input read.
-    int remoteInput1 = modbusTCPClient.discreteInputRead(0xff, ADDR_REMOTE_MOTOR_STATUS);
+    int remoteInput1 = modbusTCPClient.discreteInputRead(ADDR_REMOTE_MOTOR_STATUS);
     if (remoteInput1 < 0) {
       Serial.print("Failed to read input! ");
       Serial.println(modbusTCPClient.lastError());
