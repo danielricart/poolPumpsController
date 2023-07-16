@@ -16,11 +16,13 @@
 #define LED_CONN_OK LEDG
 
 #define ADDR_REMOTE_MOTOR 0x00
+#define ADDR_REMOTE_MOTOR_STATUS 0x00
 #define ADDR_REMOTE_LED_WATER_LEVEL 0x01
 #define ADDR_REMOTE_LED_CHLORINE 0x02
 IPAddress ip(192, 168, 1, 177);  //Local end
 
 EthernetClient ethClient;
+
 ModbusTCPClient modbusTCPClient(ethClient);
 IPAddress server(192, 168, 1, 10);  // remote end
 
@@ -28,7 +30,7 @@ VirtualDelay updateSerialOutput;
 
 bool waterLevel = false;
 bool chlorineStatus = false;
-bool motorOn = false;
+bool turnMotorOn = false;
 bool remoteMotorStatus = false;
 bool overrideBehaviour = false;
 
@@ -38,7 +40,7 @@ bool remoteComms = false;
 void setVariables(bool newWaterLevel, bool newChlorineStatus, bool newMotorOn, bool newOverride) {
   waterLevel = newWaterLevel;
   chlorineStatus = newChlorineStatus;
-  motorOn = newMotorOn;
+  turnMotorOn = newMotorOn;
   overrideBehaviour = newOverride;
 }
 
@@ -54,7 +56,7 @@ void setup() {
   RPC.bind("setVariables", setVariables);
   RPC.bind("getRemoteMotorStatus", getRemoteMotorStatus);
   delay(200);
-
+  ethClient.setTimeout(500);
   Ethernet.begin(ip);
   if (Ethernet.linkStatus() == LinkOFF) {
     Serial.println("Ethernet cable is not connected.");
@@ -77,7 +79,9 @@ void loop() {
   } else {  // client connected
     modbusStatus = modbusTCPClient.connected();
     remoteComms = true; //assuming everything will be ok. 
-    int remoteInput1 = modbusTCPClient.coilRead(0x00);
+
+    // this is an discrete input read.
+    int remoteInput1 = modbusTCPClient.discreteInputRead(0xff, ADDR_REMOTE_MOTOR_STATUS);
     if (remoteInput1 < 0) {
       Serial.print("Failed to read input! ");
       Serial.println(modbusTCPClient.lastError());
@@ -105,10 +109,10 @@ void loop() {
 
 
   //TODO: Fetch this from remote end.
-  //remoteMotorStatus = motorOn;
+  //remoteMotorStatus = turnMotorOn;
 
-  digitalWrite(LEDR, !modbusStatus || !remoteComms);
-  digitalWrite(LEDG, modbusStatus || remoteComms);
+  digitalWrite(LED_CONN_ERROR, !modbusStatus || !remoteComms);
+  digitalWrite(LED_CONN_OK, modbusStatus || remoteComms);
 
 
   if (updateSerialOutput.elapsed()) {
@@ -116,8 +120,8 @@ void loop() {
     Serial.print(waterLevel);
     Serial.print("  chlorineStatus: ");
     Serial.print(chlorineStatus);
-    Serial.print("  motorOn: ");
-    Serial.print(motorOn);
+    Serial.print("  turnMotorOn: ");
+    Serial.print(turnMotorOn);
     Serial.print("  remoteMotorStatus: ");
     Serial.print(remoteMotorStatus);
     Serial.print("  overrideBehaviour: ");
