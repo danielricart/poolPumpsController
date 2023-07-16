@@ -58,7 +58,7 @@ void setup() {
   ethClient.setTimeout(500);
   Ethernet.begin(ip);
   if (Ethernet.linkStatus() == LinkOFF) {
-    Serial.println("Ethernet cable is not connected.");
+    delay(500);
   }
   Serial.println("WaterLevel+Chlorine Controller Started.");
   mbed::Watchdog::get_instance().start(WATCHDOG_TIMEOUT);  
