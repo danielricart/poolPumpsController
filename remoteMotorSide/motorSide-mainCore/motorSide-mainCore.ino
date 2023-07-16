@@ -1,3 +1,4 @@
+// MotorSide Main Core.
 #ifdef CORE_CM4
 #error "This Code is for CORE_CM7 only"
 #endif
@@ -8,6 +9,7 @@
 #include <ArduinoRS485.h>
 #include <ArduinoModbus.h>
 
+#include <avdweb_VirtualDelay.h>
 #include "RPC.h"
 
 #define LED_CONN_ERROR LEDR
@@ -21,6 +23,8 @@
 IPAddress ip(192, 168, 1, 10);
 EthernetServer ethServer(502);
 ModbusTCPServer modbusTCPServer;
+
+VirtualDelay updateSerialOutput;
 
 int remoteWaterLevel = LOW;
 int remoteChlorineStatus = LOW;
@@ -51,13 +55,15 @@ void setMotorStatus(bool newValue) {
 void setup() {
   // put your setup code here, to run once:
   bootM4();
+  updateSerialOutput.start(1000);
+
   pinMode(RELAY1, OUTPUT);
   pinMode(LED_D0, OUTPUT);
   pinMode(LED_D1, OUTPUT);
   pinMode(LED_D2, OUTPUT);
   pinMode(LED_D3, OUTPUT);
   pinMode(A0, INPUT);
-  
+
   RPC.begin();
   RPC.bind("getRemoteWaterLevel", getRemoteWaterLevel);
   RPC.bind("getRemoteChlorineStatus", getRemoteChlorineStatus);
@@ -84,7 +90,7 @@ void setup() {
   if (modbusTCPServer.configureDiscreteInputs(0x00, 1) != 1)  //Motor status (maps to an input)
     Serial.println("Error configuring 1 discrete input");
   else
-   Serial.println("MODBUS Configured");
+    Serial.println("MotorPump Controller Started.");
 }
 
 void loop() {
@@ -101,16 +107,18 @@ void loop() {
       remoteComms = true;
       readModbus();
       updateStatus();
-
-      Serial.print("remoteWaterLevel: ");
-      Serial.print(remoteWaterLevel);
-      Serial.print(" MotorStatus: ");
-      Serial.print(MotorStatus);
-      Serial.print(" remoteChlorineStatus: ");
-      Serial.print(remoteChlorineStatus);
-      Serial.print(" turnMotorOn: ");
-      Serial.print(turnMotorOn);
-      Serial.println(" ");
+      if (updateSerialOutput.elapsed()) {
+        Serial.print("remoteWaterLevel: ");
+        Serial.print(remoteWaterLevel);
+        Serial.print(" MotorStatus: ");
+        Serial.print(MotorStatus);
+        Serial.print(" remoteChlorineStatus: ");
+        Serial.print(remoteChlorineStatus);
+        Serial.print(" turnMotorOn: ");
+        Serial.print(turnMotorOn);
+        Serial.println(" ");
+        updateSerialOutput.start(1000);
+      }
     }
     //client disconnected
   } else {
