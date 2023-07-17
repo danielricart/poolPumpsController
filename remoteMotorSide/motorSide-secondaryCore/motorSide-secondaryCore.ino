@@ -42,10 +42,11 @@ void loop() {
   auto remoteChlorineStatus = RPC.call("getRemoteChlorineStatus").as<int>();
   auto turnMotorOn = RPC.call("getTurnMotorOn").as<int>();
 
-  int sensorValueA0 = analogRead(PIN_MOTOR_STATUS);
+  /*  int sensorValueA0 = analogRead(PIN_MOTOR_STATUS);
   float voltageA0 = sensorValueA0 * (3.0 / 4095.0) / 0.3;
   MotorStatus = (voltageA0 < 2.0f) || overrideBehaviour;
-
+*/
+  MotorStatus = digitalRead(PIN_MOTOR_STATUS);
 
 
 
