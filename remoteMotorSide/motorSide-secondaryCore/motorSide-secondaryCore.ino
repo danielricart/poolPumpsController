@@ -4,6 +4,7 @@
 #endif
 
 #include <avdweb_VirtualDelay.h>
+#include <EasyButton.h>
 #include "RPC.h"
 
 #define PIN_MOTOR_STATUS A0
@@ -12,15 +13,21 @@
 #define LED_MOTOR_STATUS LED_D1
 #define LED_REMOTE_CHLORINE_STATUS LED_D2
 #define LED_OVERRIDE LED_D3
+#define BUTTON_LONG_PRESS 2000
 
 int remoteWaterLevel = LOW;
 int remoteChlorineStatus = LOW;
 int MotorStatus = LOW;
 int turnMotorOn = LOW;
 
+EasyButton button(BTN_USER);
 bool overrideBehaviour = false;
 
 VirtualDelay updateSerialOutput;
+
+void onPressedForDuration() {
+  overrideBehaviour = !overrideBehaviour;
+}
 
 void setup() {
   // put your setup code here, to run once:
@@ -34,10 +41,16 @@ void setup() {
   pinMode(LED_D2, OUTPUT);
   pinMode(LED_D3, OUTPUT);
   pinMode(PIN_MOTOR_STATUS, INPUT_PULLUP);
+
+  button.begin();
+  // Attach callback.
+  button.onPressedFor(BUTTON_LONG_PRESS, onPressedForDuration);
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
+  button.read();
+
   auto remoteWaterLevel = RPC.call("getRemoteWaterLevel").as<int>();
   auto remoteChlorineStatus = RPC.call("getRemoteChlorineStatus").as<int>();
   auto turnMotorOn = RPC.call("getTurnMotorOn").as<int>();
@@ -54,5 +67,5 @@ void loop() {
   RPC.send("setMotorStatus", MotorStatus);
   digitalWrite(LED_MOTOR_STATUS, MotorStatus);
   digitalWrite(LED_REMOTE_CHLORINE_STATUS, remoteChlorineStatus);
-  digitalWrite(PIN_MOTOR, turnMotorOn);
+  digitalWrite(PIN_MOTOR, turnMotorOn || overrideBehaviour);
 }
