@@ -72,6 +72,7 @@ void setup() {
   ethServer.begin();
 
   if (!modbusTCPServer.begin()) {
+    digitalWrite(LEDR, HIGH);
     Serial.println("Failed to start Modbus TCP Server!");
     while (1)
       ;
@@ -82,9 +83,10 @@ void setup() {
 
   // this is an discrete input
   if (modbusTCPServer.configureDiscreteInputs(0x00, 1) != 1)  //Motor status (maps to an input)
-    Serial.println("Error configuring 1 discrete input");
-  else
-    Serial.println("MotorPump Controller Started.");
+    if (Serial.availableForWrite())
+      Serial.println("Error configuring 1 discrete input");
+    else if (Serial.availableForWrite())
+      Serial.println("MotorPump Controller Started.");
 }
 
 void loop() {
@@ -104,7 +106,8 @@ void loop() {
       updateSerial();
     }
     //client disconnected
-    Serial.println("MODBUS client disconnected.");
+    if (Serial.availableForWrite())
+      Serial.println("MODBUS client disconnected.");
   } else {
     modbusStatus = false;
     remoteComms = false;
@@ -114,8 +117,9 @@ void loop() {
     turnMotorOn = false;
     remoteWaterLevel = false;
     remoteChlorineStatus = false;
-    if (updateSerialOutput.elapsed() && Serial.availableForWrite()) {
-      Serial.println("No MODBUS Client found .");
+    if (updateSerialOutput.elapsed()) {
+      if (Serial.availableForWrite())
+        Serial.println("No MODBUS Client found .");
       updateSerialOutput.start(1000);
     }
   }
@@ -135,6 +139,11 @@ void updateStatus() {
 
 void updateSerial() {
   if (updateSerialOutput.elapsed()) {
+    updateSerialOutput.start(1000);
+
+    if (!Serial.availableForWrite())
+      return;
+
     Serial.print("modbusStatus: ");
     Serial.print(modbusStatus);
     Serial.print(" remoteWaterLevel: ");
@@ -146,6 +155,5 @@ void updateSerial() {
     Serial.print(" turnMotorOn: ");
     Serial.print(turnMotorOn);
     Serial.println(" ");
-    updateSerialOutput.start(1000);
   }
 }
