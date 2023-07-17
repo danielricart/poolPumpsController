@@ -95,6 +95,7 @@ void loop() {
   digitalWrite(LED_WATERLEVEL, waterLevelStatus);
   digitalWrite(LED_REMOTEMOTOR, remoteMotorStatus);
   digitalWrite(LED_CHLORINE, chlorineStatus);
+  digitalWrite(PIN_CHLORINE, chlorineStatus);
   digitalWrite(LED_OVERRIDE, overrideBehaviour);
 
   RPC.send("setVariables", waterLevelStatus, chlorineStatus, turnRemoteMotorOn, overrideBehaviour);
