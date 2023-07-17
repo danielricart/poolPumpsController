@@ -33,7 +33,7 @@ void setup() {
   pinMode(LED_MOTOR_STATUS, OUTPUT);
   pinMode(LED_D2, OUTPUT);
   pinMode(LED_D3, OUTPUT);
-  pinMode(PIN_MOTOR_STATUS, INPUT);
+  pinMode(PIN_MOTOR_STATUS, INPUT_PULLUP);
 }
 
 void loop() {
