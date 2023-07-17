@@ -110,11 +110,14 @@ void loop() {
     remoteComms = false;
     updateStatus();
     updateSerial();
-    // Disable outputs if there's no connection. Safe mode. 
+    // Disable outputs if there's no connection. Safe mode.
     turnMotorOn = false;
     remoteWaterLevel = false;
     remoteChlorineStatus = false;
-    Serial.println("No MODBUS Client found .");
+    if (updateSerialOutput.elapsed() && Serial.availableForWrite()) {
+      Serial.println("No MODBUS Client found .");
+      updateSerialOutput.start(1000);
+    }
   }
 }
 
@@ -126,9 +129,6 @@ void readModbus() {
 }
 
 void updateStatus() {
-
-
-
   digitalWrite(LEDR, !modbusStatus);
   digitalWrite(LEDG, modbusStatus);
 }
