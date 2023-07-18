@@ -66,7 +66,7 @@ void loop() {
   float voltageA0 = sensorValueA0 * (3.0 / 4095.0) / 0.3;
   newWaterLevelStatus = (voltageA0 < 2.0f) || overrideBehaviour;
 */
-  newWaterLevelStatus = !digitalRead(PIN_WATERLEVEL) || overrideBehaviour;  
+  newWaterLevelStatus = digitalRead(PIN_WATERLEVEL) || overrideBehaviour;  
   auto remoteMotorResult = RPC.call("getRemoteMotorStatus").as<int>();
   newRemoteMotorStatus = (bool)remoteMotorResult;
   // EVALUATE
