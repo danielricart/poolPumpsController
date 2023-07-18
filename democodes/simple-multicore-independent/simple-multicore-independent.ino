@@ -33,8 +33,11 @@ void loop() {
   delay(100);
   int sensorValueA0 = analogRead(A0);
   float voltageA0 = sensorValueA0 * (3.0 / 4095.0)/ 0.3;
+
+  bool pin1 = digitalRead(A1);
   Serial.print(sensorValueA0);
   Serial.print(";");
+  Serial.print(pin1);
   Serial.println(voltageA0, 5); // Print the voltage as a float with 5 decimal digits
 
 }
