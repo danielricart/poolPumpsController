@@ -75,7 +75,7 @@ void loop() {
   if (newWaterLevelStatus != waterLevelStatus) {
     lastWaterLevelStatusTransition = now;
   }
-  if ((now - lastWaterLevelStatusTransition) > 1000) {  // THis delay debounces the reading and delays reactions.
+  if ((now - lastWaterLevelStatusTransition) > 5000) {  // THis delay debounces the reading and delays reactions.
     turnRemoteMotorOn = waterLevelStatus;
   }
   waterLevelStatus = newWaterLevelStatus;
@@ -85,7 +85,7 @@ void loop() {
   if (newRemoteMotorStatus != remoteMotorStatus) {
     lastRemoteMotorStatusTransition = now;
   }
-  if (now - lastRemoteMotorStatusTransition > 1000) {  // THis delay debounces the reading and delays reactions.
+  if (now - lastRemoteMotorStatusTransition > 2000) {  // THis delay debounces the reading and delays reactions.
     chlorineStatus = remoteMotorStatus;
   }
   remoteMotorStatus = newRemoteMotorStatus;

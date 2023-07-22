@@ -61,7 +61,7 @@ void loop() {
   float voltageA0 = sensorValueA0 * (3.0 / 4095.0) / 0.3;
   MotorStatus = (voltageA0 < 2.0f) || overrideBehaviour;
 */
-  MotorStatus = !digitalRead(PIN_MOTOR_STATUS);
+  MotorStatus = digitalRead(PIN_MOTOR_STATUS);
 
 
 
