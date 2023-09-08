@@ -62,11 +62,11 @@ void loop() {
   // READ INPUTS
   unsigned long now = millis();
   button.read();
-  int sensorValueA0 = analogRead(PIN_WATERLEVEL);
+  /*int sensorValueA0 = analogRead(PIN_WATERLEVEL);
   float voltageA0 = sensorValueA0 * (3.0 / 4095.0) / 0.3;
-
   newWaterLevelStatus = (voltageA0 < 2.0f) || overrideBehaviour;
-
+*/
+  newWaterLevelStatus = digitalRead(PIN_WATERLEVEL) || overrideBehaviour;  
   auto remoteMotorResult = RPC.call("getRemoteMotorStatus").as<int>();
   newRemoteMotorStatus = (bool)remoteMotorResult;
   // EVALUATE
@@ -75,7 +75,7 @@ void loop() {
   if (newWaterLevelStatus != waterLevelStatus) {
     lastWaterLevelStatusTransition = now;
   }
-  if ((now - lastWaterLevelStatusTransition) > 1000) {  // THis delay debounces the reading and delays reactions.
+  if ((now - lastWaterLevelStatusTransition) > 5000) {  // THis delay debounces the reading and delays reactions.
     turnRemoteMotorOn = waterLevelStatus;
   }
   waterLevelStatus = newWaterLevelStatus;
@@ -85,7 +85,7 @@ void loop() {
   if (newRemoteMotorStatus != remoteMotorStatus) {
     lastRemoteMotorStatusTransition = now;
   }
-  if (now - lastRemoteMotorStatusTransition > 1000) {  // THis delay debounces the reading and delays reactions.
+  if (now - lastRemoteMotorStatusTransition > 2000) {  // THis delay debounces the reading and delays reactions.
     chlorineStatus = remoteMotorStatus;
   }
   remoteMotorStatus = newRemoteMotorStatus;
@@ -95,6 +95,7 @@ void loop() {
   digitalWrite(LED_WATERLEVEL, waterLevelStatus);
   digitalWrite(LED_REMOTEMOTOR, remoteMotorStatus);
   digitalWrite(LED_CHLORINE, chlorineStatus);
+  digitalWrite(PIN_CHLORINE, chlorineStatus);
   digitalWrite(LED_OVERRIDE, overrideBehaviour);
 
   RPC.send("setVariables", waterLevelStatus, chlorineStatus, turnRemoteMotorOn, overrideBehaviour);
